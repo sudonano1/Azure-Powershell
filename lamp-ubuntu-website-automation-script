@@ -1,4 +1,5 @@
 #ensure that you have an appropriate Ubuntu Image "Canonical:UbuntuServer:20.04-LTS:20.04.202106220 available in your chosen Azure location.
+
 # Authenticate with Azure
 Connect-AzAccount
 
@@ -9,11 +10,24 @@ $location = "eastus"
 # Create a new resource group
 New-AzResourceGroup -Name $resourceGroupName -Location $location
 
+# Prompt for the virtual machine size
+$validSizes = @("Standard_B1s", "Standard_D2s_v3", "Standard_D4s_v3")
+$vmSizeIndex = Read-Host -Prompt "Select the virtual machine size:`n1. Small (`$30/month) `n2. Medium (`$60/month) `n3. Large (`$120/month)`nEnter the number corresponding to your choice (1, 2, or 3):"
+
+switch ($vmSizeIndex) {
+    "1" { $vmSize = $validSizes[0] }
+    "2" { $vmSize = $validSizes[1] }
+    "3" { $vmSize = $validSizes[2] }
+    default {
+        Write-Host "Invalid choice. Selecting the default size: Small"
+        $vmSize = $validSizes[0]
+    }
+}
+
 # Create a new Ubuntu virtual machine
 $vmName = "myLampVM"
-$vmSize = "Standard_B1s"
-$adminUsername = "azureuser"
-$adminPassword = "MyPassword123"
+$adminUsername = "azureuserdefault1"
+$adminPassword = "MyPassword@1*2?3"
 
 New-AzVm -ResourceGroupName $resourceGroupName `
          -Name $vmName `
@@ -43,10 +57,10 @@ $webpageContent = @"
 <!DOCTYPE html>
 <html>
 <head>
-    <title>My Basic Webpage</title>
+    <title>Ernesto's Basic Webpage</title>
 </head>
 <body>
-    <h1>Welcome to My Basic Webpage!</h1>
+    <h1>Ernesto's Basic Webpage!</h1>
     <p>This is a sample webpage hosted on the LAMP server.</p>
 </body>
 </html>
@@ -58,3 +72,11 @@ $webpageContent | Out-File -FilePath $webpagePath -Encoding UTF8
 # Output the webpage URL
 $webpageUrl = "http://$publicIpAddress"
 Write-Host "Your basic webpage is accessible at: $webpageUrl"
+
+
+#In this updated script, the user is prompted to select a virtual machine size by entering a number corresponding to their choice. The available choices are:
+#Small (Standard_B1s) - $30/month
+#Medium (Standard_D2s_v3) - $60/month
+#Large (Standard_D4s_v3) - $120/month
+#Based on the user's selection, the script assigns the appropriate virtual machine size ($vmSize) from the $validSizes array.
+#Note that the prices mentioned are approximate and can vary based on the Azure region and pricing changes. Ensure to verify the current pricing information on the Azure website or Azure Portal.
